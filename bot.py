@@ -1,2 +1,7 @@
 from telegram.ext import Updater
-updater = Updater(token='TOKEN', use_context=True)
+import configparser
+
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+updater = Updater(token=config['APP']['TELEGRAM_TOKEN'], use_context=True)
