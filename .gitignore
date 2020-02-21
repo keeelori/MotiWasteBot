@@ -1,3 +1,4 @@
 #directories to ignore
 .idea/
 venv/
+config.json
