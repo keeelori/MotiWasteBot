@@ -13,7 +13,7 @@ config.read('config.ini')
 # updater listens to user's inputs
 updater = Updater(token=config['APP']['TELEGRAM_TOKEN'], use_context=True)
 
-# dispatcher process what updater sent to it
+# dispatcher processes what updater sent to it
 dispatcher = updater.dispatcher
 
 # handlers definition
