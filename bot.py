@@ -17,11 +17,14 @@ updater = Updater(token=config['APP']['TELEGRAM_TOKEN'], use_context=True)
 dispatcher = updater.dispatcher
 
 # handlers definition
+# matching start command with function to execute
 handler_start = CommandHandler('start', start)
-handler_show_nearest_poin = CallbackQueryHandler(shot_nearest_point)
 
-# adding handler to the dispatcher so that it can match input with the method to execute
+# callback query is what returned by pressing InlineKeyboardButton.
+handler_show_nearest_point = CallbackQueryHandler(show_nearest_point, pattern='show_nearest_point')
+
+# adding handler to the dispatcher
 dispatcher.add_handler(handler_start)
-dispatcher.add_handler(handler_show_nearest_poin)
+dispatcher.add_handler(handler_show_nearest_point)
 
 updater.start_polling()
