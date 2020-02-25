@@ -1,7 +1,5 @@
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
-import configparser
+from telegram.ext import Updater, CommandHandler, ConversationHandler, CallbackQueryHandler, MessageHandler, Filters
 from handlers import *
-import logging
 
 # config is used to extract bot token
 config = configparser.ConfigParser()
@@ -19,20 +17,25 @@ handler_start = CommandHandler('start', start)
 
 # callback query is what returned by pressing InlineKeyboardButton. Matching each button shown on /start command with
 # function to execute
-handler_show_nearest_point = CallbackQueryHandler(show_nearest_point, pattern='show_nearest_point')
-handler_show_how_to_prepare = CallbackQueryHandler(show_how_to_prepare, pattern='show_how_to_prepare')
-handler_add_point = CallbackQueryHandler(add_point, pattern='add_point')
-handler_help_project = CallbackQueryHandler(help_project, pattern='help_project')
+conversation_handler = ConversationHandler(
+    entry_points=[CommandHandler('start', start)],
+    states={
+        CHOSE_BUTTON: [CallbackQueryHandler(show_nearest_point, pattern='show_nearest_point'),
+                       CallbackQueryHandler(show_chosen_category, pattern='show_chosen_category'),
+                       CallbackQueryHandler(add_point, pattern='add_point'),
+                       CallbackQueryHandler(help_project, pattern='help_project'),
+                       CallbackQueryHandler(extract_category_info, pattern='category')],
+        SEND_LOCATION: [MessageHandler(Filters.location, process_location)]
+    },
+    fallbacks=[CommandHandler('start', start)]
+)
 
 # matching each button for waste type with function to execute
 
 # end of handlers definition section
 
 # adding handler to the dispatcher
-dispatcher.add_handler(handler_start)
-dispatcher.add_handler(handler_show_nearest_point)
-dispatcher.add_handler(handler_show_how_to_prepare)
-dispatcher.add_handler(handler_add_point)
-dispatcher.add_handler(handler_help_project)
+dispatcher.add_handler(conversation_handler)
 
+# start asking the bot for inputs
 updater.start_polling()
