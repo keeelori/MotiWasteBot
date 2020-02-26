@@ -1,6 +1,9 @@
 from telegram.ext import Updater, CommandHandler, ConversationHandler, CallbackQueryHandler, MessageHandler, Filters
 from handlers import *
 
+coords_1 = (52.2296756, 21.0122287)
+coords_2 = (52.406374, 16.9251681)
+
 # config is used to extract bot token
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -19,16 +22,25 @@ handler_start = CommandHandler('start', start)
 # function to execute
 conversation_handler = ConversationHandler(
     entry_points=[CommandHandler('start', start)],
+
     states={
-        CHOSE_BUTTON: [CallbackQueryHandler(show_nearest_point, pattern='show_nearest_point'),
-                       CallbackQueryHandler(show_chosen_category, pattern='show_chosen_category'),
-                       CallbackQueryHandler(add_point, pattern='add_point'),
-                       CallbackQueryHandler(help_project, pattern='help_project'),
-                       CallbackQueryHandler(ask_for_location, pattern='category')],
-                       #CallbackQueryHandler(extract_category_info, pattern='category')],
-        SEND_LOCATION: [MessageHandler(Filters.location, process_location)]
+
+        CHOSE_BUTTON: [
+            CallbackQueryHandler(show_nearest_location, pattern='show_nearest_location'),
+            CallbackQueryHandler(ask_for_location, pattern='category')
+            # CallbackQueryHandler(show_chosen_category, pattern='show_chosen_category'),
+            # CallbackQueryHandler(add_point, pattern='add_point'),
+            # CallbackQueryHandler(help_project, pattern='help_project'),
+        ],
+
+        SEND_LOCATION: [
+                    MessageHandler(Filters.location, process_location)
+        ],
     },
-    fallbacks=[CommandHandler('start', start)]
+
+    fallbacks=[CommandHandler('start', start)],
+
+    per_message=False
 )
 
 # matching each button for waste type with function to execute

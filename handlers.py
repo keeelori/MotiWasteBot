@@ -1,5 +1,6 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from pymongo import MongoClient
+import geopy.distance
 import configparser
 
 # config is used to extract remote mongo instance
@@ -17,7 +18,7 @@ CHOSE_BUTTON, SEND_LOCATION = range(2)
 def start(update, context):
     # buttons to display under the welcome message
     buttons = [[
-        InlineKeyboardButton(text='Найближчий пункт приймоу', callback_data='show_nearest_point')],
+        InlineKeyboardButton(text='Найближчий пункт приймоу', callback_data='show_nearest_location')],
         [InlineKeyboardButton(text='Як підготувати сміття до утлізації', callback_data='show_how_to_prepare')],
         [InlineKeyboardButton(text='Додати пункт прийому вторсировини', callback_data='add_point')],
         [InlineKeyboardButton(text='Допомогти проекту', callback_data='help_project')
@@ -32,10 +33,12 @@ def start(update, context):
 
 
 # method to execute on show_nearest_point button click
-def show_nearest_point(update, context):
+def show_nearest_location(update, context):
     # extracting each category name and creating an array of buttons with callback_data = type
     buttons = []
-    for category in db.categories.find():
+
+    all_categories = db.categories.find()
+    for category in all_categories:
         buttons.append([InlineKeyboardButton(text=category['name'], callback_data='category_' + category['type'])])
 
     # create keyboard instance
@@ -46,9 +49,9 @@ def show_nearest_point(update, context):
     return CHOSE_BUTTON
 
 
-# method to execute after user selects a category from the list provided by show_nearest_point method
-def show_chosen_category(update, context):
-    pass
+# # method to execute after user selects a category from the list provided by show_nearest_point method
+# def show_chosen_category(update, context):
+#     pass
 
 
 def add_point(update, context):
@@ -57,6 +60,42 @@ def add_point(update, context):
 
 def help_project(update, context):
     pass
+
+
+def ask_for_location(update, context):
+    selected_category = update.callback_query.data.partition('_')[2]
+    context.user_data['selected_category'] = selected_category
+    update.effective_message.reply_text('Де ти зараз є? Відправ мені геолокацію.')
+
+    return SEND_LOCATION
+
+
+def process_location(update, context):
+    longitude = update.message.location.longitude
+    latitude = update.message.location.latitude
+
+    all_locations_collection = db.locations
+
+    # assuming first location is nearest
+    nearest_point = all_locations_collection.find_one()
+    min_distance = geopy.distance.geodesic((longitude, latitude), nearest_point['coordinates'])
+
+    # searching for nearest location
+    all_locations = all_locations_collection.find()
+    for location in all_locations:
+        local_min = geopy.distance.geodesic((longitude, latitude), (location['longitude'], location['latitude']))
+        if local_min < min_distance:
+            min_distance = local_min
+            nearest_point = location
+
+    update.effective_message.reply_text(
+        'Ось що знайшов поблизу: /n{}/n{}/n{}/n/n{}/n/n{}'.format(nearest_point['name'],
+                                                                  nearest_point['address'],
+                                                                  nearest_point['workingHours'],
+                                                                  nearest_point['categories'],
+                                                                  min_distance.m))
+
+    return CHOSE_BUTTON
 
 
 def show_how_to_prepare(update, context):
@@ -69,23 +108,9 @@ def show_how_to_prepare(update, context):
     # create keyboard instance
     reply_markup = InlineKeyboardMarkup(buttons)
     # send message on /show_how_to_prepare action
-    update.message.reply_text('Чим можу бути корисним?', reply_markup=reply_markup)
+    update.message.reply_text('Розказати, як підготувати його до здачі?', reply_markup=reply_markup)
 
     return CHOSE_BUTTON
-
-
-def process_location(update, context):
-    longitude = update.message.longitude
-    latitude = update.message.latitudeq
-
-
-
-def ask_for_location(update, context):
-    selected_category = update.callback_query.data.partition('_')[2]
-    context.user_data['selected_category'] = selected_category
-    update.effective_message.reply_text('Де ти зараз є? Відправ мені геолокацію.')
-
-    return SEND_LOCATION
 
 
 def extract_category_info(update, context):
