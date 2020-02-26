@@ -9,7 +9,6 @@ config.read('config.ini')
 
 mongo_client = MongoClient(config['DATABASE']['URL'])
 db = mongo_client.motiwaste_bot
-all_categories = db.categories.find()
 
 # states of conversation
 CHOSE_BUTTON, SEND_LOCATION = range(2)
@@ -25,10 +24,6 @@ def start(update, context):
         [InlineKeyboardButton(text='Допомогти проекту', callback_data='help_project')
          ]]
 
-    category_buttons = []
-    for category in all_categories:
-        category_buttons.append([InlineKeyboardButton(text=category['name'], callback_data='category_' + category['type'])])
-    context.chat_data['category_buttons'] = category_buttons
     # create keyboard instance
     reply_markup = InlineKeyboardMarkup(buttons)
     # send message on /start action
@@ -40,8 +35,12 @@ def start(update, context):
 # method to execute on show_nearest_point button click
 def show_nearest_location(update, context):
     # extracting each category name and creating an array of buttons with callback_data = type
-    buttons = context.chat_data['category_buttons']
+    buttons = []
 
+    all_categories = db.categories.find()
+    for category in all_categories:
+        buttons.append(
+            [InlineKeyboardButton(text=category['name'], callback_data='category_' + category['type'])])
     # create keyboard instance
     reply_markup = InlineKeyboardMarkup(buttons)
     # send message with categories as inline buttons
