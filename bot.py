@@ -24,7 +24,8 @@ conversation_handler = ConversationHandler(
                        CallbackQueryHandler(show_chosen_category, pattern='show_chosen_category'),
                        CallbackQueryHandler(add_point, pattern='add_point'),
                        CallbackQueryHandler(help_project, pattern='help_project'),
-                       CallbackQueryHandler(extract_category_info, pattern='category')],
+                       CallbackQueryHandler(ask_for_location, pattern='category')],
+                       #CallbackQueryHandler(extract_category_info, pattern='category')],
         SEND_LOCATION: [MessageHandler(Filters.location, process_location)]
     },
     fallbacks=[CommandHandler('start', start)]

@@ -58,6 +58,7 @@ def add_point(update, context):
 def help_project(update, context):
     pass
 
+
 def show_how_to_prepare(update, context):
     # buttons to display under the welcome message
     buttons = [
@@ -72,16 +73,25 @@ def show_how_to_prepare(update, context):
 
     return CHOSE_BUTTON
 
+
 def process_location(update, context):
-    pass
+    longitude = update.message.longitude
+    latitude = update.message.latitudeq
+
+
+
+def ask_for_location(update, context):
+    selected_category = update.callback_query.data.partition('_')[2]
+    context.user_data['selected_category'] = selected_category
+    update.effective_message.reply_text('Де ти зараз є? Відправ мені геолокацію.')
+
+    return SEND_LOCATION
+
 
 def extract_category_info(update, context):
-    category_type = update.callback_query.data.partition('_')[2]
-
-    description = db.categories.find_one({"type": str(category_type)})['description']
-
-    update.effective_message.reply_text(description)
-
-    return CHOSE_BUTTON
-
-
+    pass
+# category_type = update.callback_query.data.partition('_')[2]
+#
+#     description = db.categories.find_one({"type": str(category_type)})['description']
+#
+#     update.effective_message.reply_text(description)
