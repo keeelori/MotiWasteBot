@@ -9,6 +9,7 @@ config.read('config.ini')
 
 mongo_client = MongoClient(config['DATABASE']['URL'])
 db = mongo_client.motiwaste_bot
+all_categories = db.categories.find()
 
 # states of conversation
 CHOSE_BUTTON, SEND_LOCATION = range(2)
@@ -24,6 +25,10 @@ def start(update, context):
         [InlineKeyboardButton(text='Допомогти проекту', callback_data='help_project')
          ]]
 
+    category_buttons = []
+    for category in all_categories:
+        category_buttons.append([InlineKeyboardButton(text=category['name'], callback_data='category_' + category['type'])])
+    context.chat_data['category_buttons'] = category_buttons
     # create keyboard instance
     reply_markup = InlineKeyboardMarkup(buttons)
     # send message on /start action
@@ -35,11 +40,7 @@ def start(update, context):
 # method to execute on show_nearest_point button click
 def show_nearest_location(update, context):
     # extracting each category name and creating an array of buttons with callback_data = type
-    buttons = []
-
-    all_categories = db.categories.find()
-    for category in all_categories:
-        buttons.append([InlineKeyboardButton(text=category['name'], callback_data='category_' + category['type'])])
+    buttons = context.chat_data['category_buttons']
 
     # create keyboard instance
     reply_markup = InlineKeyboardMarkup(buttons)
@@ -73,29 +74,45 @@ def ask_for_location(update, context):
 def process_location(update, context):
     longitude = update.message.location.longitude
     latitude = update.message.location.latitude
+    selected_category = context.user_data['selected_category']
 
     all_locations_collection = db.locations
 
     # assuming first location is nearest
-    nearest_point = all_locations_collection.find_one()
-    min_distance = geopy.distance.geodesic((longitude, latitude), nearest_point['coordinates'])
+    nearest_point = all_locations_collection.find_one({'categories': selected_category})
+    min_distance = geopy.distance.geodesic((longitude, latitude), reversed(nearest_point['coordinates']))
 
     # searching for nearest location
     all_locations = all_locations_collection.find()
     for location in all_locations:
-        local_min = geopy.distance.geodesic((longitude, latitude), (location['longitude'], location['latitude']))
-        if local_min < min_distance:
-            min_distance = local_min
-            nearest_point = location
+        if selected_category in location['categories']:
+            local_min = geopy.distance.geodesic((longitude, latitude), (location['coordinates']))
+            if local_min < min_distance:
+                min_distance = local_min
+                nearest_point = location
 
     update.effective_message.reply_text(
-        'Ось що знайшов поблизу: /n{}/n{}/n{}/n/n{}/n/n{}'.format(nearest_point['name'],
-                                                                  nearest_point['address'],
-                                                                  nearest_point['workingHours'],
-                                                                  nearest_point['categories'],
-                                                                  min_distance.m))
+        'Ось що знайшов поблизу:\n\n{}\n{}\n{}\n\n{}\n\n{}м'.format(nearest_point['name'],
+                                                                    nearest_point['address'],
+                                                                    nearest_point['workingHours'],
+                                                                    nearest_point['categories'],
+                                                                    int(min_distance.m)))
 
-    return CHOSE_BUTTON
+    nearest_latitude, nearest_longitude = reversed(nearest_point['coordinates'])
+    update.message.bot.send_location(chat_id=update.effective_chat.id,
+                                     latitude=nearest_latitude,
+                                     longitude=nearest_longitude)
+
+    return SEND_LOCATION
+
+
+# def send_location(update, context):
+#     chat_id = update.effective_chat.id
+#     latitude = context.user_data['nearest_latitude']
+#     longitude = context.user_data['nearest_longitude']
+#     update.message.bot.send_location(chat_id=chat_id, latitude=latitude, longitude=longitude)
+#
+#     return CHOSE_BUTTON
 
 
 def show_how_to_prepare(update, context):

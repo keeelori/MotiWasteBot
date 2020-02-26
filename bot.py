@@ -34,7 +34,7 @@ conversation_handler = ConversationHandler(
         ],
 
         SEND_LOCATION: [
-                    MessageHandler(Filters.location, process_location)
+            MessageHandler(Filters.location, process_location)
         ],
     },
 
