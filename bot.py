@@ -18,8 +18,8 @@ dispatcher = updater.dispatcher
 # matching start command with function to execute
 handler_start = CommandHandler('start', start)
 
-# callback query is what returned by pressing InlineKeyboardButton. Matching each button shown on /start command with
-# function to execute
+# callback query is what returned by pressing InlineKeyboardButton. Here we match each button shown on /start command
+# with function to execute
 conversation_handler = ConversationHandler(
     entry_points=[CommandHandler('start', start)],
 
