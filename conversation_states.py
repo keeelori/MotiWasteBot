@@ -2,7 +2,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
 
 
 # states of conversation
-MAIN_MENU, FLOW_SHOW_NEAREST_LOCATION, SEND_LOCATION, FLOW_SHOW_HOW_TO_PREPARE = range(4)
+MAIN_MENU, FLOW_SHOW_NEAREST_LOCATION, SEND_LOCATION, FLOW_SHOW_HOW_TO_PREPARE, FLOW_ADD_POINT, FLOW_HELP_PROJECT = range(6)
 
 # method to execute for '/start' command
 def start(update, context):

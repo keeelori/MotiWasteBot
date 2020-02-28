@@ -1,6 +1,8 @@
 from telegram.ext import Updater, CommandHandler, ConversationHandler, CallbackQueryHandler, MessageHandler, Filters
 from flow_show_nearest_location import *
 from flow_show_how_to_prepare import *
+from flow_add_point import *
+from flow_help_project import *
 
 # config is used to extract bot token
 config = configparser.ConfigParser()
@@ -22,7 +24,9 @@ conversation_handler = ConversationHandler(
 
         MAIN_MENU: [
             CallbackQueryHandler(button_show_nearest_location, pattern='button_show_nearest_location'),
-            CallbackQueryHandler(button_show_how_to_prepare, pattern='button_show_how_to_prepare')
+            CallbackQueryHandler(button_show_how_to_prepare, pattern='button_show_how_to_prepare'),
+            CallbackQueryHandler(button_add_point, pattern='button_add_point'),
+            CallbackQueryHandler(button_help_project, pattern='button_help_project')
         ],
 
         FLOW_SHOW_NEAREST_LOCATION: [
@@ -37,6 +41,14 @@ conversation_handler = ConversationHandler(
 
         FLOW_SHOW_HOW_TO_PREPARE: [
             CallbackQueryHandler(show_category_when_it_selected, pattern='category')
+        ],
+
+        FLOW_ADD_POINT: [
+            CallbackQueryHandler(start, pattern='to_main_menu')
+        ],
+
+        FLOW_HELP_PROJECT: [
+            CallbackQueryHandler(start, pattern='to_main_menu')
         ]
     },
 
