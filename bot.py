@@ -1,5 +1,6 @@
 from telegram.ext import Updater, CommandHandler, ConversationHandler, CallbackQueryHandler, MessageHandler, Filters
-from handlers import *
+from flow_show_nearest_location import *
+from flow_show_how_to_prepare import *
 
 # config is used to extract bot token
 config = configparser.ConfigParser()
@@ -19,19 +20,24 @@ conversation_handler = ConversationHandler(
 
     states={
 
-        CHOSE_BUTTON: [
-            CallbackQueryHandler(button_show_nearest_location, pattern='show_nearest_location'),
+        MAIN_MENU: [
+            CallbackQueryHandler(button_show_nearest_location, pattern='button_show_nearest_location'),
+            CallbackQueryHandler(button_show_how_to_prepare, pattern='button_show_how_to_prepare')
+        ],
+
+        FLOW_SHOW_NEAREST_LOCATION: [
             CallbackQueryHandler(ask_for_location_when_category_selected, pattern='category'),
-            CallbackQueryHandler(start, pattern='to_main_menu'),
-            CallbackQueryHandler(show_how_to_prepare_category, pattern='show_how_to_prepare_category')
-            # CallbackQueryHandler(show_chosen_category, pattern='show_chosen_category'),
-            # CallbackQueryHandler(add_point, pattern='add_point'),
-            # CallbackQueryHandler(help_project, pattern='help_project'),
+            CallbackQueryHandler(show_how_to_prepare_category, pattern='show_how_to_prepare_category'),
+            CallbackQueryHandler(start, pattern='to_main_menu')
         ],
 
         SEND_LOCATION: [
             MessageHandler(Filters.location, process_location)
         ],
+
+        FLOW_SHOW_HOW_TO_PREPARE: [
+            CallbackQueryHandler(show_category_when_it_selected, pattern='category')
+        ]
     },
 
     fallbacks=[CommandHandler('start', start)],

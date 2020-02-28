@@ -1,38 +1,10 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
 from pymongo import MongoClient
 import geopy.distance
-import configparser
-
-# config is used to extract remote mongo instance
-config = configparser.ConfigParser()
-config.read('config.ini')
-
-mongo_client = MongoClient(config['DATABASE']['URL'])
-db = mongo_client.motiwaste_bot
-
-# states of conversation
-CHOSE_BUTTON, SEND_LOCATION = range(2)
+from conversation_states import *
+from db_connection import *
 
 
-# method to execute for '/start' command
-def start(update, context):
-    # buttons to display under the welcome message
-    buttons = [[
-        InlineKeyboardButton(text='Найближчий пункт приймоу', callback_data='show_nearest_location')],
-        [InlineKeyboardButton(text='Як підготувати сміття до утлізації', callback_data='show_how_to_prepare')],
-        [InlineKeyboardButton(text='Додати пункт прийому вторсировини', callback_data='add_point')],
-        [InlineKeyboardButton(text='Допомогти проекту', callback_data='help_project')
-         ]]
-
-    # create keyboard instance
-    reply_markup = InlineKeyboardMarkup(buttons)
-    # send message on /start action
-    update.effective_message.reply_text('Чим можу бути корисним?', reply_markup=reply_markup)
-
-    return CHOSE_BUTTON
-
-
-# method to execute on show_nearest_point button click
 def button_show_nearest_location(update, context):
     # extracting each category name and creating an array of buttons with callback_data = type
     buttons = []
@@ -48,24 +20,13 @@ def button_show_nearest_location(update, context):
     # send message with categories as inline buttons
     update.effective_message.reply_text(text="Що здаємо на переробку?", reply_markup=reply_markup)
 
-    return CHOSE_BUTTON
-
-
-def button_show_how_to_prepare(update, context):
-    pass
-
-def button_add_point(update, context):
-    pass
-
-
-def button_help_project(update, context):
-    pass
+    return FLOW_SHOW_NEAREST_LOCATION
 
 
 def ask_for_location_when_category_selected(update, context):
     # store selected category to process after user sends location
-    selected_category_name = update.callback_query.data.partition('_')[2]
-    context.user_data['selected_category_name'] = selected_category_name
+    selected_category_type = update.callback_query.data.partition('_')[2]
+    context.user_data['selected_category_type'] = selected_category_type
 
     update.effective_message.reply_text('Де ти зараз є? Відправ мені геолокацію.')
 
@@ -78,20 +39,20 @@ def process_location(update, context):
     latitude = update.message.location.latitude
 
     # fetch category user saved in ask_for_location func
-    selected_category_name = context.user_data['selected_category_name']
+    selected_category_type = context.user_data['selected_category_type']
 
     # fetch location collection from db
     all_locations_collection = db.locations
 
     # assume first location that matches selected category is nearest
-    nearest_location = all_locations_collection.find_one({'categories': selected_category_name})
+    nearest_location = all_locations_collection.find_one({'categories': selected_category_type})
     # distance calculation
     min_distance = geopy.distance.geodesic((longitude, latitude), reversed(nearest_location['coordinates']))
 
     # search for nearest location
     all_locations = all_locations_collection.find()
     for location in all_locations:
-        if selected_category_name in location['categories']:
+        if selected_category_type in location['categories']:
             local_min = geopy.distance.geodesic((longitude, latitude), (location['coordinates']))
             if local_min < min_distance:
                 min_distance = local_min
@@ -124,7 +85,7 @@ def process_location(update, context):
     # buttons to display after location has been sent
     buttons = [
         [InlineKeyboardButton(text='Так', callback_data='show_how_to_prepare_category')],
-        [InlineKeyboardButton(text='До головного меню', callback_data='to_main_menu')]
+        [InlineKeyboardButton(text='До головного меню', callback_data='to_main_menu')]  # add common button
     ]
 
     # create keyboard instance
@@ -132,16 +93,16 @@ def process_location(update, context):
     # send message on /show_how_to_prepare action
     update.message.reply_text('Розказати, як підготувати його до здачі?', reply_markup=reply_markup)
 
-    return CHOSE_BUTTON
+    return FLOW_SHOW_NEAREST_LOCATION
 
 
 def show_how_to_prepare_category(update, context):
-    selected_category_name = context.user_data['selected_category_name']
+    selected_category_type = context.user_data['selected_category_type']
 
-    selected_category = db.categories.find_one({'type': selected_category_name})
+    selected_category = db.categories.find_one({'type': selected_category_type})
 
     button = [
-        [InlineKeyboardButton(text='До головного меню', callback_data='to_main_menu')]
+        [InlineKeyboardButton(text='До головного меню', callback_data='to_main_menu')]  # add common button
     ]
 
     reply_markup = InlineKeyboardMarkup(button)
@@ -150,16 +111,17 @@ def show_how_to_prepare_category(update, context):
     #     text='Як підготувати сміття категорії *{'+nearest_location['description']+'}* до переробки:\n',
     #     reply_markup=reply_markup, parse_mode=ParseMode.MARKDOWN)
 
-    update.effective_message.reply_text(
-    'Як підготувати сміття категорії *{}* до переробки:\n\n{}\n\n✅{}\n\n❌{}\n\nℹ️{}'.format(selected_category['name'], #add formatters
-                                                                                        selected_category['description'],
-                                                                                        selected_category['do'],
-                                                                                        selected_category['dont'],
-                                                                                        selected_category['steps']),
+    update.effective_message.reply_text( # add formatters
+        'Як підготувати сміття категорії *{}* до переробки:\n\n{}\n\n✅{}\n\n❌{}\n\nℹ️{}'.format(
+            selected_category['name'],
+            selected_category['description'],
+            selected_category['do'],
+            selected_category['dont'],
+            selected_category['steps']),
         reply_markup=reply_markup,
         parse_mode=ParseMode.MARKDOWN)
 
-    return CHOSE_BUTTON
+    return FLOW_SHOW_NEAREST_LOCATION
 
 # category_type = update.callback_query.data.partition('_')[2]
 #
