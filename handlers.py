@@ -27,13 +27,13 @@ def start(update, context):
     # create keyboard instance
     reply_markup = InlineKeyboardMarkup(buttons)
     # send message on /start action
-    update.message.reply_text('Чим можу бути корисним?', reply_markup=reply_markup)
+    update.effective_message.reply_text('Чим можу бути корисним?', reply_markup=reply_markup)
 
     return CHOSE_BUTTON
 
 
 # method to execute on show_nearest_point button click
-def show_nearest_location(update, context):
+def button_show_nearest_location(update, context):
     # extracting each category name and creating an array of buttons with callback_data = type
     buttons = []
 
@@ -51,18 +51,21 @@ def show_nearest_location(update, context):
     return CHOSE_BUTTON
 
 
-def add_point(update, context):
+def button_show_how_to_prepare(update, context):
+    pass
+
+def button_add_point(update, context):
     pass
 
 
-def help_project(update, context):
+def button_help_project(update, context):
     pass
 
 
-def ask_for_location(update, context):
+def ask_for_location_when_category_selected(update, context):
     # store selected category to process after user sends location
-    selected_category = update.callback_query.data.partition('_')[2]
-    context.user_data['selected_category'] = selected_category
+    selected_category_name = update.callback_query.data.partition('_')[2]
+    context.user_data['selected_category_name'] = selected_category_name
 
     update.effective_message.reply_text('Де ти зараз є? Відправ мені геолокацію.')
 
@@ -75,31 +78,30 @@ def process_location(update, context):
     latitude = update.message.location.latitude
 
     # fetch category user saved in ask_for_location func
-    selected_category = context.user_data['selected_category']
+    selected_category_name = context.user_data['selected_category_name']
 
     # fetch location collection from db
     all_locations_collection = db.locations
 
     # assume first location that matches selected category is nearest
-    nearest_location = all_locations_collection.find_one({'categories': selected_category})
+    nearest_location = all_locations_collection.find_one({'categories': selected_category_name})
     # distance calculation
     min_distance = geopy.distance.geodesic((longitude, latitude), reversed(nearest_location['coordinates']))
 
     # search for nearest location
     all_locations = all_locations_collection.find()
     for location in all_locations:
-        if selected_category in location['categories']:
+        if selected_category_name in location['categories']:
             local_min = geopy.distance.geodesic((longitude, latitude), (location['coordinates']))
             if local_min < min_distance:
                 min_distance = local_min
                 nearest_location = location
 
-    # replacing each category in location with it's real name. for example [paper] is replaced with string 'Paper'
+    # replacing each category.type in location with category.name. for example [paper] is replaced with string 'Paper'
     categories_names = ''
     # fetch categories collection to find real name
-    categories = db.categories.find()
     for category_in_location in nearest_location['categories']:
-        for category in categories:
+        for category in db.categories.find():
             if category_in_location == category['type']:
                 categories_names = categories_names + (category['name']) + '\n'
                 break
@@ -110,8 +112,8 @@ def process_location(update, context):
                                                                      nearest_location['address'],
                                                                      nearest_location['workingHours'],
                                                                      categories_names,
-                                                                     int(min_distance.k)),
-                                                                     parse_mode=ParseMode.MARKDOWN)
+                                                                     int(min_distance.km)),
+        parse_mode=ParseMode.MARKDOWN)
 
     # send the Location object
     nearest_latitude, nearest_longitude = reversed(nearest_location['coordinates'])
@@ -119,14 +121,10 @@ def process_location(update, context):
                                      latitude=nearest_latitude,
                                      longitude=nearest_longitude)
 
-    return SEND_LOCATION
-
-
-def show_how_to_prepare(update, context):
-    # buttons to display under the welcome message
+    # buttons to display after location has been sent
     buttons = [
-        [InlineKeyboardButton(text='Так', callback_data='show_how_to_prepare')],
-        [InlineKeyboardButton(text='Ні', callback_data='do_not_show_how_to_prepare')]
+        [InlineKeyboardButton(text='Так', callback_data='show_how_to_prepare_category')],
+        [InlineKeyboardButton(text='До головного меню', callback_data='to_main_menu')]
     ]
 
     # create keyboard instance
@@ -137,8 +135,32 @@ def show_how_to_prepare(update, context):
     return CHOSE_BUTTON
 
 
-def extract_category_info(update, context):
-    pass
+def show_how_to_prepare_category(update, context):
+    selected_category_name = context.user_data['selected_category_name']
+
+    selected_category = db.categories.find_one({'type': selected_category_name})
+
+    button = [
+        [InlineKeyboardButton(text='До головного меню', callback_data='to_main_menu')]
+    ]
+
+    reply_markup = InlineKeyboardMarkup(button)
+
+    # update.effective_message.reply_text(
+    #     text='Як підготувати сміття категорії *{'+nearest_location['description']+'}* до переробки:\n',
+    #     reply_markup=reply_markup, parse_mode=ParseMode.MARKDOWN)
+
+    update.effective_message.reply_text(
+    'Як підготувати сміття категорії *{}* до переробки:\n\n{}\n\n✅{}\n\n❌{}\n\nℹ️{}'.format(selected_category['name'], #add formatters
+                                                                                        selected_category['description'],
+                                                                                        selected_category['do'],
+                                                                                        selected_category['dont'],
+                                                                                        selected_category['steps']),
+        reply_markup=reply_markup,
+        parse_mode=ParseMode.MARKDOWN)
+
+    return CHOSE_BUTTON
+
 # category_type = update.callback_query.data.partition('_')[2]
 #
 #     description = db.categories.find_one({"type": str(category_type)})['description']
