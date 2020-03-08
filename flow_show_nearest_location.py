@@ -1,5 +1,4 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
-from pymongo import MongoClient
 import geopy.distance
 from conversation_states import *
 from db_connection import *
