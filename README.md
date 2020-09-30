@@ -1,3 +1,3 @@
 # MotiWasteBot
-Bot helps people to live zero-waste lifestyle\
+The bot helps people to live a zero-waste lifestyle\
 Open telegram and find @MotiWasteBot
