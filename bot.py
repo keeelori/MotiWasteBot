@@ -10,7 +10,7 @@ config = configparser.ConfigParser()
 config.read('config.ini')
 
 # updater listens to user's inputs
-updater = Updater(token=config['APP']['TELEGRAM_TOKEN_TEST'], use_context=True)
+updater = Updater(token=config['APP']['TELEGRAM_TOKEN'], use_context=True)
 
 # dispatcher processes what updater sent to it
 dispatcher = updater.dispatcher
