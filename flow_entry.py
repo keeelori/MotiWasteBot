@@ -3,6 +3,11 @@ from conversation_states import *
 
 # method to execute for '/start' command
 def start(update, context):
+
+    #writing a user into db
+    db.users.insert( { _id: update.effective_chat.id, username: update.effective_chat.username, firstName: update.effective_chat.first_name, 
+        lastName: update.effective_chat.last_name} )
+        
     # buttons to display under the welcome message
     buttons = [[
         InlineKeyboardButton(text='Найближчий пункт приймоу', callback_data='button_show_nearest_location')],
