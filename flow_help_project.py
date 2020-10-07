@@ -1,7 +1,6 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
 from conversation_states import *
 
-
 def button_help_project(update, context):
     button = [
         [InlineKeyboardButton(text='До головного меню', callback_data='to_main_menu')]  # add common button

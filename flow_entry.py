@@ -1,12 +1,14 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
 from conversation_states import *
+from db_connection import *
 
 # method to execute for '/start' command
 def start(update, context):
 
     #writing a user into db
-    db.users.insert( { _id: update.effective_chat.id, username: update.effective_chat.username, firstName: update.effective_chat.first_name, 
-        lastName: update.effective_chat.last_name} )
+    if (db.users.find_one({"_id": update.effective_chat.id}) == None):
+        db.users.insert_one( { "_id": update.effective_chat.id, "username": update.effective_chat.username, "firstName": update.effective_chat.first_name, 
+            "lastName": update.effective_chat.last_name} )
         
     # buttons to display under the welcome message
     buttons = [[
