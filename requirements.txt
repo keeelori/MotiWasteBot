@@ -1,3 +1,4 @@
+APScheduler==3.6.3
 attrs==19.3.0
 Automat==0.8.0
 blinker==1.4
@@ -53,7 +54,8 @@ pyrsistent==0.15.5
 pyserial==3.4
 python-apt==2.0.0+ubuntu0.20.4.1
 python-debian===0.1.36ubuntu1
-python-telegram-bot==12.4.2
+python-telegram-bot==13.0
+pytz==2020.1
 PyYAML==5.3.1
 requests==2.22.0
 requests-unixsocket==0.2.0
@@ -66,6 +68,7 @@ ssh-import-id==5.10
 systemd-python==234
 tornado==6.0.3
 Twisted==18.9.0
+tzlocal==2.1
 ubuntu-advantage-tools==20.3
 ufw==0.36
 unattended-upgrades==0.1
