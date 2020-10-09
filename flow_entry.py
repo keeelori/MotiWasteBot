@@ -19,7 +19,7 @@ def start(update, context):
         InlineKeyboardButton(text='Найближчий пункт приймоу', callback_data='button_show_nearest_location')],
         [InlineKeyboardButton(text='Як підготувати сміття до утлізації', callback_data='button_show_how_to_prepare')],
         [InlineKeyboardButton(text='Додати пункт прийому вторсировини', callback_data='button_add_point')],
-        [InlineKeyboardButton(text='Допомогти проекту / Задати питання', callback_data='button_help_project')
+        [InlineKeyboardButton(text='Зв\'язатися з нами', callback_data='button_help_project')
          ]]
 
     # create keyboard instance
