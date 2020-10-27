@@ -37,7 +37,8 @@ conversation_handler = ConversationHandler(
         ],
 
         SEND_LOCATION: [
-            MessageHandler(Filters.location, process_location)
+            MessageHandler(Filters.location, process_location),
+            CallbackQueryHandler(show_gif_how_to_send_location, pattern='how_to_send_location')
         ],
 
         FLOW_SHOW_HOW_TO_PREPARE: [

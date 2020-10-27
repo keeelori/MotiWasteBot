@@ -27,7 +27,19 @@ def ask_for_location_when_category_selected(update, context):
     selected_category_type = update.callback_query.data.partition('_')[2]
     context.user_data['selected_category_type'] = selected_category_type
 
-    update.effective_message.reply_text('Де ти зараз є? Відправ мені геолокацію.')
+    # button 'how to send location'
+    button = [
+        [InlineKeyboardButton(text='Я не знаю як відправити локацію', callback_data='how_to_send_location')]
+    ]
+    reply_markup = InlineKeyboardMarkup(button)
+
+    update.effective_message.reply_text('Де ти зараз є? Відправ мені геолокацію.', reply_markup=reply_markup)
+
+    return SEND_LOCATION
+
+def show_gif_how_to_send_location(update, context):
+    
+    update.effective_message.reply_document('CgACAgIAAxkBAAIBS1-YVr2B70MhHQk7k9DGATX2FTsXAAKvCQACuNvISBhNUvXZPliGGwQ')
 
     return SEND_LOCATION
 
