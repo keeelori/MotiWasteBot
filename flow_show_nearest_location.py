@@ -39,7 +39,9 @@ def ask_for_location_when_category_selected(update, context):
 
 def show_gif_how_to_send_location(update, context):
     
-    update.effective_message.reply_document('CgACAgIAAxkBAAIBS1-YVr2B70MhHQk7k9DGATX2FTsXAAKvCQACuNvISBhNUvXZPliGGwQ') #the sting is file_id that exists on telegram servers
+    video = open("how_to_send_location.mp4", "rb")
+    update.effective_message.reply_video(video) 
+    video.close()
 
     return SEND_LOCATION
 
