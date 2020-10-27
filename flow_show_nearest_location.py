@@ -39,8 +39,8 @@ def ask_for_location_when_category_selected(update, context):
 
 def show_gif_how_to_send_location(update, context):
     
-    video = open("how_to_send_location.mp4", "rb")
-    update.effective_message.reply_video(video) 
+    gif = open("how_to_send_location.mp4", "rb")
+    update.effective_message.reply_document(gif) 
     video.close()
 
     return SEND_LOCATION
