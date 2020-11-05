@@ -16,7 +16,7 @@ def start(update, context):
         
     # buttons to display under the welcome message
     buttons = [[
-        InlineKeyboardButton(text='Найближчий пункт приймоу', callback_data='button_show_nearest_location')],
+        InlineKeyboardButton(text='Найближчий пункт приймоу та утилізації', callback_data='button_show_nearest_location')],
         [InlineKeyboardButton(text='Як підготувати сміття до утлізації', callback_data='button_show_how_to_prepare')],
         [InlineKeyboardButton(text='Додати пункт прийому вторсировини', callback_data='button_add_point')],
         [InlineKeyboardButton(text='Зв\'язатися з нами', callback_data='button_help_project')
