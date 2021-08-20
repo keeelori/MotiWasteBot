@@ -1,0 +1,10 @@
+how to export mongodb instance:
+ - connect to a db (local or remote one) with: sudo mongodump --uri="mongodb+srv://[user]:[pass]@[host]/[dbname]" -o [pathToSave]
+ 
+ how to remove DB in mongoshell:
+ - enter mongo shell with: mongo (if local)
+ - switch to the DB with: use [dbName]
+ - execute: db.dropDatabase()
+
+ how to import DB:
+ - use: mongorestore -d <database_name> <directory_backup>
