@@ -8,3 +8,9 @@ how to export mongodb instance:
 
  how to import DB:
  - use: mongorestore -d <database_name> <directory_backup>
+
+[DATABASE]
+URL = url of the local or remote mongo (without '')
+
+[APP]
+TELEGRAM_TOKEN = bot token
