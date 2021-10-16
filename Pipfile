@@ -24,6 +24,8 @@ tzlocal = "==3.0"
 virtualenv = "==20.7.2"
 virtualenv-clone = "==0.5.6"
 APScheduler = "==3.6.3"
+pylint = "*"
+mypy = "*"
 
 [dev-packages]
 
