@@ -1,4 +1,5 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.constants import ParseMode
 import geopy.distance
 from conversation_states import *
 from db_connection import *
@@ -17,7 +18,7 @@ def button_show_nearest_location(update, context):
     # create keyboard instance
     reply_markup = InlineKeyboardMarkup(buttons)
     # send message with categories as inline buttons
-    update.effective_message.reply_text(text="Що здаємо на переробку?", reply_markup=reply_markup)
+    update.message.reply_text(text="Що здаємо на переробку?", reply_markup=reply_markup)
 
     return FLOW_SHOW_NEAREST_LOCATION
 
@@ -33,14 +34,14 @@ def ask_for_location_when_category_selected(update, context):
     ]
     reply_markup = InlineKeyboardMarkup(button)
 
-    update.effective_message.reply_text('Де ти зараз є? Відправ мені геолокацію.', reply_markup=reply_markup)
+    update.message.reply_text('Де ти зараз є? Відправ мені геолокацію.', reply_markup=reply_markup)
 
     return SEND_LOCATION
 
 def show_gif_how_to_send_location(update, context):
     
     gif = open("how_to_send_location.mp4", "rb")
-    update.effective_message.reply_document(gif)
+    update.message.reply_document(gif)
     gif.close()
 
     return SEND_LOCATION
@@ -81,7 +82,7 @@ def process_location(update, context):
                 break
 
     # send category info
-    update.effective_message.reply_text(
+    update.message.reply_text(
         'Ось що знайшов поблизу:\n\n{}\n{}\n{}\n\n*{}*\n{}км'.format(nearest_location['name'],
                                                                      nearest_location['address'],
                                                                      nearest_location['workingHours'],
@@ -120,11 +121,11 @@ def show_how_to_prepare_category(update, context):
 
     reply_markup = InlineKeyboardMarkup(button)
 
-    # update.effective_message.reply_text(
+    # update.message.reply_text(
     #     text='Як підготувати сміття категорії *{'+nearest_location['description']+'}* до переробки:\n',
     #     reply_markup=reply_markup, parse_mode=ParseMode.MARKDOWN)
 
-    update.effective_message.reply_text( # add formatters
+    update.message.reply_text( # add formatters
         'Як підготувати сміття категорії *{}* до переробки:\n\n{}\n\n✅{}\n\n❌{}\n\nℹ️{}'.format(
             selected_category['name'],
             selected_category['description'],
@@ -140,4 +141,4 @@ def show_how_to_prepare_category(update, context):
 #
 #     description = db.categories.find_one({"type": str(category_type)})['description']
 #
-#     update.effective_message.reply_text(description)
+#     update.message.reply_text(description)

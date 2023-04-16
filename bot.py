@@ -1,4 +1,4 @@
-from telegram.ext import Updater, CommandHandler, ConversationHandler, CallbackQueryHandler, MessageHandler, Filters
+from telegram.ext import Application, Updater, CommandHandler, ConversationHandler, CallbackQueryHandler, MessageHandler, filters
 from flow_show_nearest_location import *
 from flow_show_how_to_prepare import *
 from flow_add_point import *
@@ -10,10 +10,12 @@ config = configparser.ConfigParser()
 config.read('config.ini')
 
 # updater listens to user's inputs
-updater = Updater(token=config['APP']['TELEGRAM_TOKEN'], use_context=True)
+#updater = Updater(token=config['APP']['TELEGRAM_TOKEN'], use_context=True)
+
+application = Application.builder().token(config['APP']['TELEGRAM_TOKEN']).build()
 
 # dispatcher processes what updater sent to it
-dispatcher = updater.dispatcher
+#dispatcher = updater.dispatcher
 
 
 # callback query is what returned by pressing InlineKeyboardButton. Here we match each button shown on /start command
@@ -37,7 +39,7 @@ conversation_handler = ConversationHandler(
         ],
 
         SEND_LOCATION: [
-            MessageHandler(Filters.location, process_location),
+            MessageHandler(filters._Location, process_location),
             CallbackQueryHandler(show_gif_how_to_send_location, pattern='how_to_send_location')
         ],
 
@@ -60,7 +62,10 @@ conversation_handler = ConversationHandler(
 )
 
 # adding handler to the dispatcher
-dispatcher.add_handler(conversation_handler)
+#dispatcher.add_handler(conversation_handler)
 
 # start asking the bot for inputs
-updater.start_polling()
+#updater.start_polling()
+
+application.add_handler(conversation_handler)
+application.run_polling()

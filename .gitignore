@@ -4,3 +4,4 @@ venv/
 config.ini
 __pycache__/
 .vscode
+.DS_Store

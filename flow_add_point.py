@@ -1,4 +1,5 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.constants import ParseMode
 from conversation_states import *
 
 def button_add_point(update, context):
@@ -7,6 +8,6 @@ def button_add_point(update, context):
     ]
     reply_markup = InlineKeyboardMarkup(button)
 
-    update.effective_message.reply_text(text="Респект! Заповни цю невеличку анкету і ми додамо пункт до карти. bit.ly/2NPuvpT", reply_markup=reply_markup)
+    update.message.reply_text(text="Респект! Заповни цю невеличку анкету і ми додамо пункт до карти. bit.ly/2NPuvpT", reply_markup=reply_markup)
 
     return FLOW_ADD_POINT

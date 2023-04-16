@@ -1,4 +1,5 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.constants import ParseMode
 from conversation_states import *
 from db_connection import *
 import datetime
@@ -25,6 +26,6 @@ def start(update, context):
     # create keyboard instance
     reply_markup = InlineKeyboardMarkup(buttons)
     # send message on /start action
-    update.effective_message.reply_text('Чим можу бути корисним?', reply_markup=reply_markup)
+    update.message.reply_text('Чим можу бути корисним?', reply_markup=reply_markup)
 
     return MAIN_MENU

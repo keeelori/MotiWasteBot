@@ -1,4 +1,5 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.constants import ParseMode
 from conversation_states import *
 from db_connection import *
 
@@ -17,7 +18,7 @@ def button_show_how_to_prepare(update, context):
     # create keyboard instance
     reply_markup = InlineKeyboardMarkup(buttons)
     # send message with categories as inline buttons
-    update.effective_message.reply_text(text="Що здаємо на переробку?", reply_markup=reply_markup)
+    update.message.reply_text(text="Що здаємо на переробку?", reply_markup=reply_markup)
 
     return FLOW_SHOW_HOW_TO_PREPARE
 
@@ -34,7 +35,7 @@ def show_category_when_it_selected(update, context):
 
     reply_markup = InlineKeyboardMarkup(button)
 
-    update.effective_message.reply_text(  # add formatters
+    update.message.reply_text(  # add formatters
         'Як підготувати сміття категорії *{}* до переробки:\n\n{}\n\n✅{}\n\n❌{}\n\nℹ️{}'.format(
             selected_category['name'],
             selected_category['description'],
